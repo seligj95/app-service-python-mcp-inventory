@@ -4,12 +4,13 @@ param tags object = {}
 
 param appServicePlanId string
 param pythonVersion string = '3.11'
-param appSettings object = {}
 
 resource web 'Microsoft.Web/sites@2024-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(tags, {
+    'azd-service-name': 'web'
+  })
   kind: 'app,linux'
   properties: {
     serverFarmId: appServicePlanId
@@ -19,12 +20,30 @@ resource web 'Microsoft.Web/sites@2024-04-01' = {
       linuxFxVersion: 'PYTHON|${pythonVersion}'
       alwaysOn: true
       ftpsState: 'FtpsOnly'
+      appCommandLine: 'python -m uvicorn main:app --host 0.0.0.0 --port 8000'
       appSettings: [
-        for setting in items(appSettings): {
-          name: setting.key
-          value: setting.value
+        {
+          name: 'WEBSITES_PORT'
+          value: '8000'
+        }
+        {
+          name: 'ENABLE_ORYX_BUILD'
+          value: 'true'
+        }
+        {
+          name: 'PYTHONPATH'
+          value: '/home/site/wwwroot'
+        }
+        {
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: 'true'
         }
       ]
+      cors: {
+        allowedOrigins: ['*']
+        supportCredentials: false
+      }
+      healthCheckPath: '/health'
     }
   }
 }

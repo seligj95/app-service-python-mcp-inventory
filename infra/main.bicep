@@ -25,33 +25,21 @@ var tags = {
   'azd-env-name': environmentName
 }
 
-// Organize resources in a resource group
-resource rg resource 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: '${abbrs.resourcesResourceGroups}${environmentName}'
-  location: location
-  tags: tags
-}
-
 // The application backend is hosted in Azure App Service
 module web './app/web.bicep' = {
   name: 'web'
-  scope: rg
   params: {
     name: '${abbrs.webSitesAppService}web-${resourceToken}'
     location: location
     tags: tags
     appServicePlanId: appServicePlan.outputs.id
     pythonVersion: pythonVersion
-    appSettings: {
-      SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
-    }
   }
 }
 
 // Create an App Service Plan to group applications under the same payment plan and SKU
 module appServicePlan './shared/app-service-plan.bicep' = {
   name: 'app-service-plan'
-  scope: rg
   params: {
     name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
     location: location

@@ -1,7 +1,7 @@
 {
   "servers": {
     "clothing-inventory-mcp-server": {
-      "url": "http://localhost:8000/mcp",
+      "url": "https://app-web-zug2mfdwkvduy.azurewebsites.net/mcp",
       "type": "http"
     }
   },

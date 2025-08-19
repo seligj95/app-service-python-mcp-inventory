@@ -126,3 +126,5 @@ dmypy.json
 .azure/
 azd-debug.log
 azure.log
+.github/
+.vscode/
