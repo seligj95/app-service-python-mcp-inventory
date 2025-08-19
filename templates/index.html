@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothing Store Inventory - MCP Server</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👕 Clothing Store Inventory</h1>
+            <p class="subtitle">MCP Server for Inventory Management</p>
+        </header>
+
+        <!-- MCP Connection Info -->
+        <div class="mcp-info">
+            <h3>🔧 MCP Server Configuration</h3>
+            <p>Use this URL to connect to the MCP server from VS Code or other compatible clients:</p>
+            <div class="mcp-url-container">
+                <input type="text" class="mcp-url" value="{{ mcp_url }}" readonly>
+                <button class="copy-btn" onclick="copyToClipboard('{{ mcp_url }}')">Copy URL</button>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                Add this URL to your <code>.vscode/mcp.json</code> configuration file to use the inventory tools in VS Code.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ items|length }}</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ categories|length }}</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_stock }}</div>
+                <div class="stat-label">Total Stock</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">MCP Tools</div>
+            </div>
+        </div>
+
+        <!-- Inventory Grid -->
+        {% if items %}
+        <div class="inventory-grid">
+            {% for item in items %}
+            <div class="item-card">
+                <div class="item-header">
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-category">{{ item.category }}</div>
+                </div>
+                <div class="item-body">
+                    <div class="item-price">${{ "%.2f"|format(item.price) }}</div>
+                    <div class="item-description">{{ item.description }}</div>
+                    
+                    <h4 style="margin-bottom: 0.5rem;">Available Sizes:</h4>
+                    <div class="sizes-grid">
+                        {% for size, quantity in item.sizes.items() %}
+                        <div class="size-badge {% if quantity > 10 %}in-stock{% elif quantity > 0 %}low-stock{% else %}out-of-stock{% endif %}">
+                            <span class="size-label">{{ size }}</span>
+                            <span class="size-quantity">{{ quantity }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-items">
+            <p>No items in inventory.</p>
+        </div>
+        {% endif %}
+
+        <!-- Available MCP Tools -->
+        <div style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Available MCP Tools</h3>
+            <div style="display: grid; gap: 1rem;">
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                    <strong>get_inventory()</strong> - Get all clothing items with sizes and quantities
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                    <strong>add_item(name, category, price, description, sizes)</strong> - Add a new clothing item
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                    <strong>update_item_quantity(item_id, size, quantity)</strong> - Update stock quantity for specific size
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                    <strong>get_item_by_id(item_id)</strong> - Get details of a specific item
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                    <strong>search_items(query)</strong> - Search items by name or category
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Clothing Store Inventory MCP Server v1.0.0</p>
+            <p>Modify inventory data in <code>inventory_data.py</code></p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
+</body>
+</html>
