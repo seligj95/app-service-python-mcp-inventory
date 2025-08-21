@@ -239,6 +239,26 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+# Add a debug endpoint for Azure troubleshooting
+@app.get("/debug")
+async def debug_info():
+    """Debug information for troubleshooting"""
+    return {
+        "environment_vars": {
+            "PORT": os.environ.get("PORT", "not set"),
+            "WEBSITE_SITE_NAME": os.environ.get("WEBSITE_SITE_NAME", "not set"),
+            "PYTHONPATH": os.environ.get("PYTHONPATH", "not set"),
+        },
+        "working_directory": os.getcwd(),
+        "files_exist": {
+            "inventory.db": os.path.exists("inventory.db"),
+            "inventory_data.py": os.path.exists("inventory_data.py"),
+            "static": os.path.exists("static"),
+            "templates": os.path.exists("templates"),
+        }
+    }
+
+
 # MCP Tool Functions
 async def mcp_get_inventory() -> Dict[str, Any]:
     """MCP tool: Get all inventory items"""
@@ -358,8 +378,33 @@ async def home(request: Request):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy", "service": "clothing-inventory-mcp"}
+    """Health check endpoint with detailed information"""
+    try:
+        # Test database connection
+        conn = sqlite3.connect('inventory.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM items')
+        item_count = cursor.fetchone()[0]
+        conn.close()
+        
+        env = "azure" if os.environ.get("WEBSITE_SITE_NAME") else "local"
+        
+        return {
+            "status": "healthy",
+            "service": "clothing-inventory-mcp",
+            "protocol_version": "2025-06-18",
+            "database": "connected",
+            "items_count": item_count,
+            "environment": env
+        }
+    except Exception as e:
+        env = "azure" if os.environ.get("WEBSITE_SITE_NAME") else "local"
+        return {
+            "status": "unhealthy",
+            "service": "clothing-inventory-mcp",
+            "error": str(e),
+            "environment": env
+        }
 
 
 # API Routes
@@ -402,7 +447,7 @@ async def mcp_endpoint(request: Request):
         return {
             "jsonrpc": "2.0",
             "result": {
-                "protocolVersion": "2024-11-05",
+                "protocolVersion": "2025-06-18",
                 "capabilities": {
                     "tools": {
                         "listChanged": False
@@ -425,7 +470,7 @@ async def mcp_endpoint(request: Request):
             "jsonrpc": "2.0",
             "id": body.get("id"),
             "result": {
-                "protocolVersion": "2024-11-05",
+                "protocolVersion": "2025-06-18",
                 "capabilities": {
                     "tools": {
                         "listChanged": False

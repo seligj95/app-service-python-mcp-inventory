@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "clothing-inventory-mcp-server": {
-      "url": "https://app-web-zug2mfdwkvduy.azurewebsites.net/mcp",
-      "type": "http"
-    }
-  },
-  "inputs": []
-}

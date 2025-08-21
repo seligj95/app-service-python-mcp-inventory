@@ -122,9 +122,43 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# FastAPI specific
+*.db
+*.sqlite
+inventory.db
+
+# Local development
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # Azure
 .azure/
 azd-debug.log
 azure.log
-.github/
-.vscode/
+
+# Keep .vscode/mcp.json for MCP configuration
+!.vscode/mcp.json
+
+# MCP Server specific
+mcp-debug.log
+mcp.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS specific
+*.pid
+.fuse_hidden*
