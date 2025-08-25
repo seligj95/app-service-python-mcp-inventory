@@ -160,6 +160,8 @@ Sample clothing items are defined in the `inventory_data.py` file. You can easil
 - Available sizes (XS, S, M, L, XL, etc.)
 - Stock quantities for each size
 
+Once you update and save the `inventory_data.py`, delete the existing `inventory.db`. When you start the app, it will recreate the file with the latest inventory data.
+
 ## License
 
 This project is licensed under the MIT License.
